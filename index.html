@@ -197,15 +197,15 @@ async function renderDoctorQueue() {
     const data = await response.json();
 
     const rows = data.map(t => `
-      <tr>
-        <td>${t.number}</td>
-        <td>${t.patient || "Patient"}</td>
-        <td>${t.doctor || "Dr. Priya Sharma"}</td>
-        <td>${t.position}</td>
-        <td>${t.wait} min</td>
-        <td>${t.status}</td>
-      </tr>
-    `).join("");
+  <tr>
+    <td>${t.number}</td>
+    <td>${t.patient || "Patient"}</td>
+    <td>-</td>
+    <td>-</td>
+    <td>${t.wait} min</td>
+    <td>${t.status}</td>
+  </tr>
+`).join("");
 
     document.getElementById("doctorQueue").innerHTML = rows;
   } catch (error) {
