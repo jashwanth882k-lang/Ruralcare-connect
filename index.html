@@ -183,7 +183,7 @@ function renderReports(){const rows=[['Blood Test','05 Sep 2026','Laboratory'],[
 function uploadReport(input){if(input.files.length){toast(input.files[0].name+' uploaded to your report list (prototype)');input.value=''}}
 function viewReport(name,date){openModal(`<h2>${name}</h2><p class="muted">${date} • Sample report preview</p><div class="card" style="background:#f8fbfb"><p><b>Patient:</b> Ananya Kumar</p><p><b>Report values:</b> Sample data for hackathon demonstration only.</p><p>This prototype does not provide diagnosis or interpret medical findings automatically.</p></div><button class="btn btn-primary" onclick="closeModal()">Close</button>`)}
 function sendMessage(){const input=document.getElementById('chatInput');if(!input.value.trim())return;const box=document.getElementById('messages');box.innerHTML+=`<div class="msg me">${escapeHtml(input.value)}</div>`;input.value='';setTimeout(()=>{box.innerHTML+=`<div class="msg doc">Thank you. I have received your message. I will review the available reports and provide guidance during the consultation.</div>`;box.scrollTop=box.scrollHeight},500);box.scrollTop=box.scrollHeight}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 async function renderDoctorQueue() {
   try {
     const response = await fetch(
