@@ -137,8 +137,48 @@ function login(){document.getElementById('loginScreen').classList.add('hidden');
 function logout(){document.getElementById('app').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden')}
 function buildNav(){const nav=document.getElementById('nav');nav.innerHTML=navs[state.role].map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}">${n[1]} &nbsp; ${n[2]}</button>`).join('');document.getElementById('bottomnav').innerHTML=navs[state.role].slice(0,5).map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}"><b>${n[1]}</b>${n[2]}</button>`).join('')}
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(page);if(el)el.classList.add('active');state.page=page;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='reports')renderReports();if(page==='doctorHome')renderDoctorQueue();if(page==='doctorPatient')renderDoctorReports();window.scrollTo({top:0,behavior:'smooth'})}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display='none',2500)}
-function getToken(){const n=Math.floor(100+Math.random()*899);state.token='RC-'+n;state.queue=Math.floor(2+Math.random()*7);state.wait=state.queue*5;['pToken','tokenBig'].forEach(id=>document.getElementById(id).textContent=state.token);document.getElementById('pQueue').textContent=state.queue;document.getElementById('waitRing').textContent=state.wait+'m';document.getElementById('queueText').textContent=state.queue+' of 12';document.getElementById('queueProgress').style.width=(state.queue/12*100)+'%';toast('New consultation token '+state.token+' generated')}
+const API_BASE = "https://ruralcare-connect-54wq.onrender.com";
+
+async function getToken() {
+  try {
+    const response = await fetch(API_BASE + "/api/tokens", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        patient: "Ananya Kumar",
+        patientId: "p1"
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("Token request failed");
+    }
+
+    const data = await response.json();
+    const t = data.token;
+
+    state.token = t.number;
+    state.queue = t.position;
+    state.wait = t.wait;
+
+    document.getElementById("pToken").textContent = t.number;
+    document.getElementById("tokenBig").textContent = t.number;
+    document.getElementById("pQueue").textContent = t.position;
+    document.getElementById("waitRing").textContent = t.wait + "m";
+    document.getElementById("queueText").textContent =
+      t.position + " of 12";
+
+    document.getElementById("queueProgress").style.width =
+      (t.position / 12 * 100) + "%";
+
+    toast("Token " + t.number + " generated successfully");
+  } catch (error) {
+    console.error(error);
+    toast("Unable to connect to RuralCare server");
+  }
+  }
 function renderReports(){const rows=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging'],['Prescription','20 Aug 2026','Prescription'],['Scan Report','02 Jul 2026','Imaging'],['CBC Report','12 Jun 2026','Laboratory']];document.getElementById('reportRows').innerHTML=rows.map((r,i)=>`<tr><td><b>📄 ${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge done">Available</span></td><td><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button> <button class="btn btn-outline" onclick="toast('Download prepared (prototype)')">Download</button></td></tr>`).join('')}
 function uploadReport(input){if(input.files.length){toast(input.files[0].name+' uploaded to your report list (prototype)');input.value=''}}
 function viewReport(name,date){openModal(`<h2>${name}</h2><p class="muted">${date} • Sample report preview</p><div class="card" style="background:#f8fbfb"><p><b>Patient:</b> Ananya Kumar</p><p><b>Report values:</b> Sample data for hackathon demonstration only.</p><p>This prototype does not provide diagnosis or interpret medical findings automatically.</p></div><button class="btn btn-primary" onclick="closeModal()">Close</button>`)}
