@@ -226,7 +226,7 @@ async function renderDoctorQueue() {
     document.getElementById("adminPatients").textContent = data.patients;
     document.getElementById("adminDoctors").textContent = data.doctors;
     document.getElementById("adminConsultations").textContent = data.todayConsultations;
-    document.getElementById("adminReferrals").textContent = data.physicalReferrals;
+    document.getElementById("adminReferrals").textContent = data.physicalReferrals;toast("Dashboard data refreshed");
 
   } catch (error) {
     console.error(error);
