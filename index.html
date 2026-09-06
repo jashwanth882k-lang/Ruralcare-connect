@@ -183,8 +183,36 @@ function renderReports(){const rows=[['Blood Test','05 Sep 2026','Laboratory'],[
 function uploadReport(input){if(input.files.length){toast(input.files[0].name+' uploaded to your report list (prototype)');input.value=''}}
 function viewReport(name,date){openModal(`<h2>${name}</h2><p class="muted">${date} • Sample report preview</p><div class="card" style="background:#f8fbfb"><p><b>Patient:</b> Ananya Kumar</p><p><b>Report values:</b> Sample data for hackathon demonstration only.</p><p>This prototype does not provide diagnosis or interpret medical findings automatically.</p></div><button class="btn btn-primary" onclick="closeModal()">Close</button>`)}
 function sendMessage(){const input=document.getElementById('chatInput');if(!input.value.trim())return;const box=document.getElementById('messages');box.innerHTML+=`<div class="msg me">${escapeHtml(input.value)}</div>`;input.value='';setTimeout(()=>{box.innerHTML+=`<div class="msg doc">Thank you. I have received your message. I will review the available reports and provide guidance during the consultation.</div>`;box.scrollTop=box.scrollHeight},500);box.scrollTop=box.scrollHeight}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-function renderDoctorQueue(){const data=[['RC-024','Ananya Kumar',34,'Fatigue / report review','25 min','Waiting'],['RC-025','Ravi Kumar',51,'Follow-up','30 min','Waiting'],['RC-026','Sita Devi',28,'General symptoms','35 min','Waiting'],['RC-027','Mohan Reddy',62,'Medication review','40 min','Waiting'],['RC-028','Lakshmi Rao',45,'Lab report','45 min','Waiting'],['RC-029','Kiran Das',39,'Follow-up','50 min','Waiting'],['RC-030','Asha Begum',56,'BP review','55 min','Waiting']];document.getElementById('doctorQueue').innerHTML=data.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><span class="badge waiting">${r[5]}</span></td><td><button class="btn btn-primary" onclick="go('doctorPatient')">Open</button></td></tr>`).join('')}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]
+async function renderDoctorQueue() {
+  try {
+    const response = await fetch(
+      "https://ruralcare-connect-54wq.onrender.com/api/tokens"
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to load queue");
+    }
+
+    const data = await response.json();
+
+    const rows = data.map(t => `
+      <tr>
+        <td>${t.number}</td>
+        <td>${t.patient || "Patient"}</td>
+        <td>${t.doctor || "Dr. Priya Sharma"}</td>
+        <td>${t.position}</td>
+        <td>${t.wait} min</td>
+        <td>${t.status}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("doctorReports").innerHTML = rows;
+  } catch (error) {
+    console.error(error);
+    toast("Unable to load patient queue");
+  }
+}
 function renderDoctorReports(){document.getElementById('doctorReports').innerHTML=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging']].map(r=>`<div class="report" style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="fileicon">📄</div><div class="report-main"><b>${r[0]}</b><div class="muted">${r[1]} • ${r[2]}</div></div><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button></div>`).join('')}
 function openDecision(type){if(type==='online')openModal(`<h2>Continue Online Care</h2><p class="muted">Record the doctor's guidance for the patient.</p><div class="field"><label>Doctor recommendations</label><textarea placeholder="Enter general guidance, recommended tests and instructions…"></textarea></div><div class="field" style="margin-top:12px"><label>Follow-up date</label><input type="date" value="2026-09-15"></div><button class="btn btn-success" style="margin-top:15px" onclick="closeModal();toast('Online-care recommendation saved')">Save Recommendation</button>`);else openModal(`<h2 style="color:#b91c1c">Physical Consultation Required</h2><p class="muted">The doctor recommends an in-person visit.</p><div class="field"><label>Reason for referral</label><textarea placeholder="Enter clinical reason for physical assessment…"></textarea></div><div class="field" style="margin-top:12px"><label>Recommended healthcare center</label><select><option>RuralCare Health Center</option><option>District Hospital</option><option>Community Health Centre</option></select></div><div class="field" style="margin-top:12px"><label>Priority</label><select><option>Routine</option><option>Priority</option><option>Urgent</option></select></div><button class="btn btn-danger" style="margin-top:15px" onclick="closeModal();toast('Physical referral recorded')">Save Referral</button>`)}
 function openEmergency(){openModal(`<div class="emergency"><h3>🚨 Emergency Help</h3><p><b>If you have a serious or life-threatening emergency, do not wait for an online consultation.</b> Seek immediate physical medical attention.</p><div class="card"><h3>Nearest Care</h3><p><b>RuralCare Health Center</b><br>Rampur Community Road<br>Emergency Desk: 24/7</p><button class="btn btn-danger" onclick="toast('Calling emergency services is represented as a prototype');closeModal()">📞 Call Emergency Services</button></div><p class="muted" style="font-size:12px">Emergency location and phone details shown here are demo data and must be configured with verified local services before deployment.</p></div><button class="btn btn-outline" style="margin-top:14px" onclick="closeModal()">Close</button>`)}
