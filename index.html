@@ -207,7 +207,7 @@ async function renderDoctorQueue() {
       </tr>
     `).join("");
 
-    document.getElementById("doctorReports").innerHTML = rows;
+    document.getElementById("doctorQueue").innerHTML = rows;
   } catch (error) {
     console.error(error);
     toast("Unable to load patient queue");
