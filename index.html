@@ -237,6 +237,102 @@ async function renderDoctorQueue() {
   }
 function renderDoctorReports(){document.getElementById('doctorReports').innerHTML=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging']].map(r=>`<div class="report" style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="fileicon">📄</div><div class="report-main"><b>${r[0]}</b><div class="muted">${r[1]} • ${r[2]}</div></div><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button></div>`).join('')}
 function openDecision(type){if(type==='online')openModal(`<h2>Continue Online Care</h2><p class="muted">Record the doctor's guidance for the patient.</p><div class="field"><label>Doctor recommendations</label><textarea placeholder="Enter general guidance, recommended tests and instructions…"></textarea></div><div class="field" style="margin-top:12px"><label>Follow-up date</label><input type="date" value="2026-09-15"></div><button class="btn btn-success" style="margin-top:15px" onclick="closeModal();toast('Online-care recommendation saved')">Save Recommendation</button>`);else openModal(`<h2 style="color:#b91c1c">Physical Consultation Required</h2><p class="muted">The doctor recommends an in-person visit.</p><div class="field"><label>Reason for referral</label><textarea placeholder="Enter clinical reason for physical assessment…"></textarea></div><div class="field" style="margin-top:12px"><label>Recommended healthcare center</label><select><option>RuralCare Health Center</option><option>District Hospital</option><option>Community Health Centre</option></select></div><div class="field" style="margin-top:12px"><label>Priority</label><select><option>Routine</option><option>Priority</option><option>Urgent</option></select></div><button class="btn btn-danger" style="margin-top:15px" onclick="closeModal();toast('Physical referral recorded')">Save Referral</button>`)}
+function joinVideoCall() {
+  openModal(`
+    <div style="padding:20px;max-width:900px;margin:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <div>
+          <h2 style="margin:0">📹 Video Consultation</h2>
+          <p class="muted" style="margin:5px 0">
+            RuralCare Connect • Dr. Priya Sharma
+          </p>
+        </div>
+
+        <button class="btn btn-outline" onclick="closeModal()">
+          ✕
+        </button>
+      </div>
+
+      <div style="
+        background:#111827;
+        border-radius:15px;
+        min-height:300px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        color:white;
+        position:relative;
+        overflow:hidden;
+      ">
+        <div>
+          <div style="font-size:55px">👨‍⚕️</div>
+          <h3>Dr. Priya Sharma</h3>
+          <p style="color:#aaa">Waiting to connect...</p>
+        </div>
+
+        <div style="
+          position:absolute;
+          right:15px;
+          bottom:15px;
+          width:120px;
+          height:90px;
+          background:#374151;
+          border-radius:10px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        ">
+          👤
+        </div>
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:center;
+        gap:12px;
+        margin-top:20px;
+        flex-wrap:wrap;
+      ">
+        <button class="btn btn-outline" onclick="toggleMicrophone()">
+          🎤 Microphone
+        </button>
+
+        <button class="btn btn-outline" onclick="toggleCamera()">
+          📷 Camera
+        </button>
+
+        <button class="btn btn-danger" onclick="endVideoCall()">
+          📞 End Call
+        </button>
+      </div>
+
+      <p id="videoCallStatus"
+         style="text-align:center;margin-top:15px"
+         class="muted">
+        Ready to connect
+      </p>
+    </div>
+  `);
+}
+
+function toggleMicrophone() {
+  const status = document.getElementById("videoCallStatus");
+  if (status) {
+    status.textContent = "Microphone control ready";
+  }
+}
+
+function toggleCamera() {
+  const status = document.getElementById("videoCallStatus");
+  if (status) {
+    status.textContent = "Camera control ready";
+  }
+}
+
+function endVideoCall() {
+  closeModal();
+}
 function openEmergency(){openModal(`<div class="emergency"><h3>🚨 Emergency Help</h3><p><b>If you have a serious or life-threatening emergency, do not wait for an online consultation.</b> Seek immediate physical medical attention.</p><div class="card"><h3>Nearest Care</h3><p><b>RuralCare Health Center</b><br>Rampur Community Road<br>Emergency Desk: 24/7</p><button class="btn btn-danger" onclick="toast('Calling emergency services is represented as a prototype');closeModal()">📞 Call Emergency Services</button></div><p class="muted" style="font-size:12px">Emergency location and phone details shown here are demo data and must be configured with verified local services before deployment.</p></div><button class="btn btn-outline" style="margin-top:14px" onclick="closeModal()">Close</button>`)}
 function openModal(content){document.getElementById('modalContent').innerHTML=content;document.getElementById('modal').classList.add('show')}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
