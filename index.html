@@ -130,7 +130,15 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden
 <script>
 const state={role:'patient', page:'patientHome', token:'RC-024', queue:5, wait:25};
 const navs={
-patient:[['patientHome','⌂','Dashboard'],['reports','▣','Medical Reports'],['consultation','◉','Consultation'],['history','◷','History'],['patientProfile','○','My Profile'],['notifications','♢','Notifications']],
+patient:[
+  ['patientHome','⌂','Dashboard'],
+  ['appointments','📅','Appointments'],
+  ['reports','▣','Medical Reports'],
+  ['consultation','◉','Consultation'],
+  ['history','◷','History'],
+  ['patientProfile','○','My Profile'],
+  ['notifications','♢','Notifications']
+]
 doctor:[['doctorHome','⌂','Dashboard'],['doctorPatient','♙','Patient Profile'],['consultation','◉','Consultation']],
 admin:[['adminHome','⌂','Dashboard']]
 };
