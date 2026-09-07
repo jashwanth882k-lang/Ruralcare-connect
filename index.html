@@ -296,42 +296,7 @@ function initVideoSocket() {
     status.textContent = "Doctor left the call";
   }
 });
-  let peerConnection = null;
-
-function createPeerConnection() {
-  if (peerConnection) return peerConnection;
-
-  peerConnection = new RTCPeerConnection({
-    iceServers: [
-      {
-        urls: "stun:stun.l.google.com:19302"
-      }
-    ]
-  });
-
-  localStream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, localStream);
-  });
-
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      videoSocket.emit("ice-candidate", {
-        roomId: currentRoomId,
-        candidate: event.candidate
-      });
-    }
-  };
-
-  peerConnection.ontrack = (event) => {
-    const remoteVideo = document.getElementById("remoteVideo");
-
-    if (remoteVideo) {
-      remoteVideo.srcObject = event.streams[0];
-    }
-  };
-
-  return peerConnection;
-}
+  
 }
 
 async function getToken() {
