@@ -84,7 +84,8 @@ app.get("/api/admin/summary", (req, res) => {
     pendingConsultations: 7,
     activeTokens: 12,
     completed: 54,
-    physicalReferrals: 8
+    physicalReferrals: 8,
+    ruralUsage: 64
   });
 });
 
