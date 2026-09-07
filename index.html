@@ -681,7 +681,7 @@ async function confirmAppointment() {
   console.error("Appointment booking error:", error);
   alert("Appointment error: " + error.message);
 }
-function openBookingModal() {
+    function openBookingModal() {
   openModal(`
     <div style="padding:20px;max-width:650px;margin:auto">
       <div class="section-title" style="margin-top:0">
@@ -948,113 +948,11 @@ function endVideoCall() {
 
   closeModal();
 }
-function openEmergency(){
-  openModal(`
-    <div class="emergency">
-      <h3>🚨 Emergency Help</h3>
-      <p>
-        <b>If you have a serious or life-threatening emergency, do not wait for an online consultation.</b>
-        Seek immediate physical medical attention.
-      </p>
-
-      <div class="card">
-        <h3>Nearest Care</h3>
-        <p>
-          <b>RuralCare Health Center</b><br>
-          Rampur Community Road<br>
-          Emergency Desk: 24/7
-        </p>
-        <button class="btn btn-danger"
-          onclick="toast('Calling emergency services is represented as a prototype');closeModal()">
-          📞 Call Emergency Services
-        </button>
-      </div>
-
-      <p class="muted" style="font-size:12px">
-        Emergency location and phone details shown here are demo data and must be configured with verified local services before deployment.
-      </p>
-    </div>
-
-    <button class="btn btn-outline"
-      style="margin-top:14px"
-      onclick="closeModal()">
-      Close
-    </button>
-  `);
-}
-
-function openModal(content){
-  document.getElementById('modalContent').innerHTML = content;
-  document.getElementById('modal').classList.add('show');
-}
-
-function closeModal(){
-  document.getElementById('modal').classList.remove('show');
-}
-
-function showRegistration(){
-  openModal(`
-    <h2>Create Patient Account</h2>
-    <p class="muted">Prototype registration form.</p>
-
-    <div class="form-grid">
-      <div class="field">
-        <label>Full name</label>
-        <input placeholder="Full name">
-      </div>
-
-      <div class="field">
-        <label>Age</label>
-        <input type="number" placeholder="Age">
-      </div>
-
-      <div class="field">
-        <label>Gender</label>
-        <select>
-          <option>Select</option>
-          <option>Female</option>
-          <option>Male</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Phone</label>
-        <input placeholder="+91">
-      </div>
-
-      <div class="field">
-        <label>Email</label>
-        <input placeholder="you@example.com">
-      </div>
-
-      <div class="field">
-        <label>Village / Address</label>
-        <input placeholder="Village / address">
-      </div>
-
-      <div class="field full">
-        <label>Emergency contact</label>
-        <input placeholder="Name and phone">
-      </div>
-
-      <div class="field full">
-        <label>Basic medical information</label>
-        <textarea placeholder="Allergies, medications, relevant history…"></textarea>
-      </div>
-    </div>
-
-    <button class="btn btn-primary"
-      style="margin-top:16px"
-      onclick="closeModal();toast('Patient profile created (prototype)')">
-      Create Secure Profile
-    </button>
-  `);
-}
-
-document.getElementById('modal').addEventListener('click', e => {
-  if(e.target.id === 'modal') closeModal();
-});
+function openEmergency(){openModal(`<div class="emergency"><h3>🚨 Emergency Help</h3><p><b>If you have a serious or life-threatening emergency, do not wait for an online consultation.</b> Seek immediate physical medical attention.</p><div class="card"><h3>Nearest Care</h3><p><b>RuralCare Health Center</b><br>Rampur Community Road<br>Emergency Desk: 24/7</p><button class="btn btn-danger" onclick="toast('Calling emergency services is represented as a prototype');closeModal()">📞 Call Emergency Services</button></div><p class="muted" style="font-size:12px">Emergency location and phone details shown here are demo data and must be configured with verified local services before deployment.</p></div><button class="btn btn-outline" style="margin-top:14px" onclick="closeModal()">Close</button>`)}
+function openModal(content){document.getElementById('modalContent').innerHTML=content;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function showRegistration(){openModal(`<h2>Create Patient Account</h2><p class="muted">Prototype registration form.</p><div class="form-grid"><div class="field"><label>Full name</label><input placeholder="Full name"></div><div class="field"><label>Age</label><input type="number" placeholder="Age"></div><div class="field"><label>Gender</label><select><option>Select</option><option>Female</option><option>Male</option><option>Other</option></select></div><div class="field"><label>Phone</label><input placeholder="+91"></div><div class="field"><label>Email</label><input placeholder="you@example.com"></div><div class="field"><label>Village / Address</label><input placeholder="Village / address"></div><div class="field full"><label>Emergency contact</label><input placeholder="Name and phone"></div><div class="field full"><label>Basic medical information</label><textarea placeholder="Allergies, medications, relevant history…"></textarea></div></div><button class="btn btn-primary" style="margin-top:16px" onclick="closeModal();toast('Patient profile created (prototype)')">Create Secure Profile</button>`)}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 </script>
 </body>
 </html>
