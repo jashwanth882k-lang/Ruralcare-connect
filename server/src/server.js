@@ -28,7 +28,32 @@ app.get("/api/health", (req, res) => {
     service: "RuralCare Connect API"
   });
 });
+const appointments = [];
 
+app.get("/api/appointments", (req, res) => {
+  res.json(appointments);
+});
+
+app.post("/api/appointments", (req, res) => {
+  const appointment = {
+    id: "APT-" + Date.now(),
+    doctor: req.body.doctor,
+    date: req.body.date,
+    time: req.body.time,
+    mode: req.body.mode,
+    reason: req.body.reason || "",
+    status: "Scheduled",
+    createdAt: new Date().toISOString()
+  };
+
+  appointments.push(appointment);
+
+  res.status(201).json({
+    ok: true,
+    message: "Appointment booked successfully",
+    appointment
+  });
+});
 app.get("/api/doctors", (req, res) => {
   res.json([
     {
