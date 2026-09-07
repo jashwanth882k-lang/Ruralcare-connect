@@ -160,13 +160,19 @@ const rtcConfig = {
     });
   }
 
-  peerConnection.ontrack = (event) => {
-    const remoteVideo = document.getElementById("remoteVideo");
+ peerConnection.ontrack = (event) => {
+  const remoteVideo = document.getElementById("remoteVideo");
 
-    if (remoteVideo) {
-      remoteVideo.srcObject = event.streams[0];
-    }
-  };
+  if (remoteVideo) {
+    remoteVideo.srcObject = event.streams[0];
+  }
+
+  const status = document.getElementById("videoCallStatus");
+
+  if (status) {
+    status.textContent = "Connected — video call is active";
+  }
+};
 
   peerConnection.onicecandidate = (event) => {
     if (event.candidate && videoSocket && currentRoomId) {
