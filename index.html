@@ -664,48 +664,76 @@ async function getToken() {
   }
   }
 function renderReports(){const rows=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging'],['Prescription','20 Aug 2026','Prescription'],['Scan Report','02 Jul 2026','Imaging'],['CBC Report','12 Jun 2026','Laboratory']];document.getElementById('reportRows').innerHTML=rows.map((r,i)=>`<tr><td><b>📄 ${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge done">Available</span></td><td><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button> <button class="btn btn-outline" onclick="toast('Download prepared (prototype)')">Download</button></td></tr>`).join('')}
-function uploadReport(input) {
+async function uploadReport(input) {
   if (!input.files.length) return;
 
   const file = input.files[0];
-  const rows = document.getElementById("reportRows");
 
-  if (!rows) return;
+  try {
+    const formData = new FormData();
+    formData.append("report", file);
 
-  const today = new Date().toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  });
+    toast("⏳ Uploading medical report...");
 
-  const fileName = file.name;
-  const fileType = file.type.includes("image")
-    ? "Imaging"
-    : file.type === "application/pdf"
-      ? "Laboratory"
-      : "Medical Report";
+    const response = await fetch(
+      "https://ruralcare-connect-54wq.onrender.com/api/reports/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
 
-  rows.insertAdjacentHTML("afterbegin", `
-    <tr>
-      <td><b>📄 ${escapeHtml(fileName)}</b></td>
-      <td>${today}</td>
-      <td>${fileType}</td>
-      <td><span class="badge done">Uploaded</span></td>
-      <td>
-        <button class="btn btn-outline"
-          onclick="toast('Report preview opened (prototype)')">
-          View
-        </button>
-        <button class="btn btn-outline"
-          onclick="toast('Download prepared (prototype)')">
-          Download
-        </button>
-      </td>
-    </tr>
-  `);
+    const data = await response.json();
 
-  input.value = "";
-  toast("✅ " + fileName + " added to your medical reports");
+    if (!response.ok) {
+      throw new Error(data.message || "Upload failed");
+    }
+
+    const rows = document.getElementById("reportRows");
+
+    if (rows) {
+      const today = new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+
+      const fileType = file.type.includes("image")
+        ? "Imaging"
+        : file.type === "application/pdf"
+          ? "Laboratory"
+          : "Medical Report";
+
+      rows.insertAdjacentHTML("afterbegin", `
+        <tr>
+          <td><b>📄 ${escapeHtml(file.name)}</b></td>
+          <td>${today}</td>
+          <td>${fileType}</td>
+          <td><span class="badge done">Uploaded</span></td>
+          <td>
+            <a class="btn btn-outline"
+               href="${data.report.url}"
+               target="_blank">
+              View
+            </a>
+            <a class="btn btn-outline"
+               href="${data.report.url}"
+               download="${escapeHtml(file.name)}">
+              Download
+            </a>
+          </td>
+        </tr>
+      `);
+    }
+
+    input.value = "";
+    toast("✅ Medical report uploaded successfully!");
+
+  } catch (error) {
+    console.error("Medical report upload error:", error);
+    toast("❌ " + error.message);
+    input.value = "";
+  }
 }
 function viewReport(name,date){openModal(`<h2>${name}</h2><p class="muted">${date} • Sample report preview</p><div class="card" style="background:#f8fbfb"><p><b>Patient:</b> Ananya Kumar</p><p><b>Report values:</b> Sample data for hackathon demonstration only.</p><p>This prototype does not provide diagnosis or interpret medical findings automatically.</p></div><button class="btn btn-primary" onclick="closeModal()">Close</button>`)}
 async function sendMessage() {
