@@ -53,7 +53,14 @@ app.get("/api/tokens", (req, res) => {
     }
   ]);
 });
-
+app.get("/api/doctor/summary", (req, res) => {
+  res.json({
+    todayTokens: 18,
+    waiting: 7,
+    completed: 9,
+    referrals: 2
+  });
+});
 app.post("/api/register", (req, res) => {
   res.status(201).json({
     success: true,
