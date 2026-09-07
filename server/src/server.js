@@ -1,7 +1,16 @@
 import express from "express";
 import cors from "cors";
-
+import http from "http";
+import { Server } from "socket.io";
 const app = express();
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 app.use(cors());
 app.use(express.json());
@@ -98,6 +107,59 @@ app.get("/api/admin/summary", (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`RuralCare API running on port ${PORT}`);
+io.on("connection", (socket) => {
+  console.log("Video call client connected:", socket.id);
+
+  socket.on("join-video-room", (roomId) => {
+    socket.join(roomId);
+
+    const room = io.sockets.adapter.rooms.get(roomId);
+    const participantCount = room ? room.size : 0;
+
+    socket.emit("room-joined", {
+      roomId,
+      participantCount
+    });
+
+    socket.to(roomId).emit("participant-joined", {
+      socketId: socket.id
+    });
+  });
+
+  socket.on("offer", ({ roomId, offer }) => {
+    socket.to(roomId).emit("offer", {
+      offer,
+      socketId: socket.id
+    });
+  });
+
+  socket.on("answer", ({ roomId, answer }) => {
+    socket.to(roomId).emit("answer", {
+      answer,
+      socketId: socket.id
+    });
+  });
+
+  socket.on("ice-candidate", ({ roomId, candidate }) => {
+    socket.to(roomId).emit("ice-candidate", {
+      candidate,
+      socketId: socket.id
+    });
+  });
+
+  socket.on("leave-video-room", (roomId) => {
+    socket.leave(roomId);
+
+    socket.to(roomId).emit("participant-left", {
+      socketId: socket.id
+    });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Video call client disconnected:", socket.id);
+  });
+});
+
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`RuralCare API + Video Signaling running on port ${PORT}`);
 });
