@@ -81,6 +81,7 @@ app.get("/api/admin/summary", (req, res) => {
     patients: 1250,
     doctors: 50,
     todayConsultations: 72,
+    pendingConsultations: 7,
     activeTokens: 12,
     completed: 54,
     physicalReferrals: 8
