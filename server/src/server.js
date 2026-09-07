@@ -134,7 +134,21 @@ const PORT = process.env.PORT || 4000;
 
 io.on("connection", (socket) => {
   console.log("Video call client connected:", socket.id);
+  socket.on("join-chat-room", (roomId) => {
+    socket.join(roomId);
+    console.log("Chat client joined room:", roomId);
+  });
 
+  socket.on("chat-message", ({ roomId, message, senderRole, senderName }) => {
+    if (!roomId || !message) return;
+
+    io.to(roomId).emit("chat-message", {
+      message,
+      senderRole,
+      senderName,
+      timestamp: new Date().toISOString()
+    });
+  });
   socket.on("join-video-room", (roomId) => {
     socket.join(roomId);
 
