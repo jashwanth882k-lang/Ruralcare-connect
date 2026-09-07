@@ -40,6 +40,7 @@ app.get("/", (req, res) => {
     status: "running"
   });
 });
+const medicalReports = [];
 app.post("/api/reports/upload", upload.single("report"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({
@@ -49,6 +50,19 @@ app.post("/api/reports/upload", upload.single("report"), (req, res) => {
   }
 
   const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const report = {
+  id: "REP-" + Date.now(),
+  patientId: req.body.patientId || "P001",
+  patientName: req.body.patientName || "Ananya",
+  originalName: req.file.originalname,
+  fileName: req.file.filename,
+  fileType: req.file.mimetype,
+  fileSize: req.file.size,
+  url: fileUrl,
+  uploadedAt: new Date().toISOString()
+};
+
+medicalReports.push(report);
 
   res.status(201).json({
     success: true,
@@ -62,6 +76,17 @@ app.post("/api/reports/upload", upload.single("report"), (req, res) => {
       uploadedAt: new Date().toISOString()
     }
   });
+});
+app.get("/api/reports", (req, res) => {
+  const patientId = req.query.patientId;
+
+  if (patientId) {
+    return res.json(
+      medicalReports.filter(report => report.patientId === patientId)
+    );
+  }
+
+  res.json(medicalReports);
 });
 
 app.get("/api/health", (req, res) => {
