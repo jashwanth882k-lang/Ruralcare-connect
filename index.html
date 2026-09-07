@@ -88,7 +88,112 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.hidden
   <div class="section-title"><h2>Rural Healthcare Benefits</h2></div>
   <div class="grid g4"><div class="card feature"><div class="bigicon">📱</div><h3>Mobile-first</h3><p>Designed for phones and small screens used in underserved communities.</p></div><div class="card feature"><div class="bigicon">📶</div><h3>Low bandwidth</h3><p>Text and essential information stay usable when connectivity is limited.</p></div><div class="card feature"><div class="bigicon">🗣️</div><h3>Local language</h3><p>English, Telugu and Hindi interface options support accessibility.</p></div><div class="card feature"><div class="bigicon">🎙️</div><h3>Voice-ready</h3><p>Voice-assisted navigation is represented as a prototype concept.</p></div></div>
 </section>
+<section id="appointments" class="page">
+  <div class="section-title">
+    <div>
+      <h2>My Appointments</h2>
+      <p class="muted">Manage your upcoming and previous appointments.</p>
+    </div>
+    <button class="btn btn-primary" onclick="toast('New appointment request started')">
+      ＋ Book Appointment
+    </button>
+  </div>
 
+  <div class="grid g2">
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0">
+        <div>
+          <h3>Upcoming Appointment</h3>
+          <span class="badge activeb">Scheduled</span>
+        </div>
+        <div style="font-size:28px">📅</div>
+      </div>
+
+      <h2>15 September 2026</h2>
+      <p><b>Dr. Priya Sharma</b></p>
+      <p class="muted">General Medicine</p>
+      <p class="muted">🕐 10:30 AM</p>
+      <p class="muted">📍 RuralCare Health Center</p>
+
+      <div class="actions" style="margin-top:18px">
+        <button class="btn btn-primary" onclick="go('consultation')">
+          📹 Join Consultation
+        </button>
+        <button class="btn btn-outline" onclick="toast('Appointment reschedule option opened')">
+          Reschedule
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0">
+        <div>
+          <h3>Next Follow-up</h3>
+          <span class="badge waiting">Upcoming</span>
+        </div>
+        <div style="font-size:28px">🩺</div>
+      </div>
+
+      <h2>20 September 2026</h2>
+      <p><b>Dr. Priya Sharma</b></p>
+      <p class="muted">Follow-up Consultation</p>
+      <p class="muted">🕐 2:00 PM</p>
+
+      <button class="btn btn-outline" style="margin-top:18px"
+              onclick="toast('Appointment details opened')">
+        View Details
+      </button>
+    </div>
+
+  </div>
+
+  <div class="section-title">
+    <h2>Appointment History</h2>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Doctor</th>
+            <th>Type</th>
+            <th>Mode</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>05 Sep 2026</td>
+            <td>Dr. Priya Sharma</td>
+            <td>General Medicine</td>
+            <td>Online</td>
+            <td><span class="badge done">Completed</span></td>
+          </tr>
+
+          <tr>
+            <td>20 Aug 2026</td>
+            <td>Dr. Priya Sharma</td>
+            <td>Follow-up</td>
+            <td>Online</td>
+            <td><span class="badge done">Completed</span></td>
+          </tr>
+
+          <tr>
+            <td>12 Jul 2026</td>
+            <td>Dr. Arjun Rao</td>
+            <td>General Medicine</td>
+            <td>Physical</td>
+            <td><span class="badge done">Completed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 <section id="patientProfile" class="page"><div class="section-title"><h2>My Profile</h2><button class="btn btn-primary" onclick="toast('Profile saved successfully')">Save Changes</button></div>
 <div class="card"><div class="form-grid"><div class="field"><label>Full name</label><input value="Ananya Kumar"></div><div class="field"><label>Age</label><input value="34"></div><div class="field"><label>Gender</label><select><option>Female</option><option>Male</option><option>Other</option></select></div><div class="field"><label>Phone number</label><input value="+91 98765 43210"></div><div class="field"><label>Email</label><input value="ananya@ruralcare.demo"></div><div class="field"><label>Village / Address</label><input value="Rampur Village, Telangana"></div><div class="field"><label>Emergency contact</label><input value="Ravi Kumar • +91 91234 56789"></div><div class="field"><label>Blood group</label><select><option>O+</option><option>A+</option><option>B+</option></select></div><div class="field full"><label>Basic medical information</label><textarea>Known allergies: None reported. Current medications: As prescribed by doctor. Previous medical history available in reports.</textarea></div></div></div></section>
 
