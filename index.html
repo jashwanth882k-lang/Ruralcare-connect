@@ -677,10 +677,9 @@ async function confirmAppointment() {
     toast("✅ Appointment booked successfully!");
     console.log("Appointment created:", data.appointment);
 
-  } catch (error) {
-    console.error("Appointment booking error:", error);
-    alert("Unable to book appointment. Please try again.");
-  }
+} catch (error) {
+  console.error("Appointment booking error:", error);
+  alert("Appointment error: " + error.message);
 }
     function openBookingModal() {
   openModal(`
