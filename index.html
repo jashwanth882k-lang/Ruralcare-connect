@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <script src="https://meet.jit.si/external_api.js"></script>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f766e">
@@ -139,6 +140,31 @@ function logout(){document.getElementById('app').classList.add('hidden');documen
 function buildNav(){const nav=document.getElementById('nav');nav.innerHTML=navs[state.role].map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}">${n[1]} &nbsp; ${n[2]}</button>`).join('');document.getElementById('bottomnav').innerHTML=navs[state.role].slice(0,5).map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}"><b>${n[1]}</b>${n[2]}</button>`).join('')}
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(page);if(el)el.classList.add('active');state.page=page;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='reports')renderReports();if(page==='doctorHome')renderDoctorQueue();if(page==='doctorPatient')renderDoctorReports();if(page==='adminHome')renderAdminSummary();window.scrollTo({top:0,behavior:'smooth'})}
 const API_BASE = "https://ruralcare-connect-54wq.onrender.com";
+  let videoSocket = null;
+
+function initVideoSocket() {
+  if (videoSocket) return;
+
+  videoSocket = io(API_BASE);
+
+  videoSocket.on("connect", () => {
+    console.log("Video signaling connected:", videoSocket.id);
+
+    const status = document.getElementById("videoCallStatus");
+    if (status) {
+      status.textContent = "Video signaling connected";
+    }
+  });
+
+  videoSocket.on("connect_error", (error) => {
+    console.error("Video signaling connection error:", error);
+
+    const status = document.getElementById("videoCallStatus");
+    if (status) {
+      status.textContent = "Unable to connect to video server";
+    }
+  });
+}
 
 async function getToken() {
   try {
@@ -316,7 +342,9 @@ function joinVideoCall() {
         Ready to connect
       </p>
     </div>
-  `);
+    `);
+
+  initVideoSocket();
 }
 
 let microphoneEnabled = true;
