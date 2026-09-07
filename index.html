@@ -141,6 +141,42 @@ function buildNav(){const nav=document.getElementById('nav');nav.innerHTML=navs[
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(page);if(el)el.classList.add('active');state.page=page;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='reports')renderReports();if(page==='doctorHome')renderDoctorQueue();if(page==='doctorPatient')renderDoctorReports();if(page==='adminHome')renderAdminSummary();window.scrollTo({top:0,behavior:'smooth'})}
 const API_BASE = "https://ruralcare-connect-54wq.onrender.com";
   let videoSocket = null;
+  let peerConnection = null;
+let currentRoomId = null;
+let localStream = null;
+let remoteStream = null;
+
+const rtcConfig = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
+};
+  function createPeerConnection() {
+  peerConnection = new RTCPeerConnection(rtcConfig);
+
+  if (localStream) {
+    localStream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, localStream);
+    });
+  }
+
+  peerConnection.ontrack = (event) => {
+    const remoteVideo = document.getElementById("remoteVideo");
+
+    if (remoteVideo) {
+      remoteVideo.srcObject = event.streams[0];
+    }
+  };
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate && videoSocket && currentRoomId) {
+      videoSocket.emit("ice-candidate", {
+        roomId: currentRoomId,
+        candidate: event.candidate
+      });
+    }
+  };
+  }
 
 function initVideoSocket() {
   if (videoSocket) return;
@@ -177,6 +213,125 @@ function initVideoSocket() {
       }
     }
   });
+    videoSocket.on("participant-joined", async () => {
+    if (!localStream) {
+      const status = document.getElementById("videoCallStatus");
+      if (status) {
+        status.textContent = "Please turn on the camera first";
+      }
+      return;
+    }
+
+    createPeerConnection();
+
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    videoSocket.emit("offer", {
+      roomId: currentRoomId,
+      offer
+    });
+
+    const status = document.getElementById("videoCallStatus");
+    if (status) {
+      status.textContent = "Connecting to doctor...";
+    }
+  });
+   videoSocket.on("offer", async ({ offer }) => {
+    if (!localStream) return;
+
+    createPeerConnection();
+
+    await peerConnection.setRemoteDescription(
+      new RTCSessionDescription(offer)
+    );
+
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+
+    videoSocket.emit("answer", {
+      roomId: currentRoomId,
+      answer
+    });
+  }); 
+  videoSocket.on("answer", async ({ answer }) => {
+  if (!peerConnection) return;
+
+  await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(answer)
+  );
+
+  const status = document.getElementById("videoCallStatus");
+
+  if (status) {
+    status.textContent = "Connected to doctor";
+  }
+});
+  videoSocket.on("ice-candidate", async ({ candidate }) => {
+  if (!peerConnection || !candidate) return;
+
+  try {
+    await peerConnection.addIceCandidate(
+      new RTCIceCandidate(candidate)
+    );
+  } catch (error) {
+    console.error("ICE candidate error:", error);
+  }
+});
+  videoSocket.on("participant-left", () => {
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+
+  const remoteVideo = document.getElementById("remoteVideo");
+
+  if (remoteVideo) {
+    remoteVideo.srcObject = null;
+  }
+
+  const status = document.getElementById("videoCallStatus");
+
+  if (status) {
+    status.textContent = "Doctor left the call";
+  }
+});
+  let peerConnection = null;
+
+function createPeerConnection() {
+  if (peerConnection) return peerConnection;
+
+  peerConnection = new RTCPeerConnection({
+    iceServers: [
+      {
+        urls: "stun:stun.l.google.com:19302"
+      }
+    ]
+  });
+
+  localStream.getTracks().forEach(track => {
+    peerConnection.addTrack(track, localStream);
+  });
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      videoSocket.emit("ice-candidate", {
+        roomId: currentRoomId,
+        candidate: event.candidate
+      });
+    }
+  };
+
+  peerConnection.ontrack = (event) => {
+    const remoteVideo = document.getElementById("remoteVideo");
+
+    if (remoteVideo) {
+      remoteVideo.srcObject = event.streams[0];
+    }
+  };
+
+  return peerConnection;
+}
 }
 
 async function getToken() {
@@ -278,6 +433,7 @@ function renderDoctorReports(){document.getElementById('doctorReports').innerHTM
 function openDecision(type){if(type==='online')openModal(`<h2>Continue Online Care</h2><p class="muted">Record the doctor's guidance for the patient.</p><div class="field"><label>Doctor recommendations</label><textarea placeholder="Enter general guidance, recommended tests and instructions…"></textarea></div><div class="field" style="margin-top:12px"><label>Follow-up date</label><input type="date" value="2026-09-15"></div><button class="btn btn-success" style="margin-top:15px" onclick="closeModal();toast('Online-care recommendation saved')">Save Recommendation</button>`);else openModal(`<h2 style="color:#b91c1c">Physical Consultation Required</h2><p class="muted">The doctor recommends an in-person visit.</p><div class="field"><label>Reason for referral</label><textarea placeholder="Enter clinical reason for physical assessment…"></textarea></div><div class="field" style="margin-top:12px"><label>Recommended healthcare center</label><select><option>RuralCare Health Center</option><option>District Hospital</option><option>Community Health Centre</option></select></div><div class="field" style="margin-top:12px"><label>Priority</label><select><option>Routine</option><option>Priority</option><option>Urgent</option></select></div><button class="btn btn-danger" style="margin-top:15px" onclick="closeModal();toast('Physical referral recorded')">Save Referral</button>`)}
 function joinVideoCall() {
   const videoRoomId = "RURALCARE-RC-024";
+  currentRoomId = videoRoomId;
 
 initVideoSocket();
 
@@ -316,7 +472,18 @@ if (videoSocket) {
           <h3>Dr. Priya Sharma</h3>
           <p style="color:#aaa">Waiting to connect...</p>
         </div>
-
+        <video
+        id="remoteVideo"
+        autoplay
+        playsinline
+        style="
+        width:100%;
+        height:300px;
+        object-fit:cover;
+        background:#111827;
+        border-radius:15px;
+       ">
+       </video>
         <video
          id="localVideo"
          autoplay
