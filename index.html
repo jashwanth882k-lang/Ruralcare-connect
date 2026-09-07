@@ -811,7 +811,75 @@ async function renderDoctorQueue() {
     toast("Unable to load admin dashboard");
   }
   }
-function renderDoctorReports(){document.getElementById('doctorReports').innerHTML=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging']].map(r=>`<div class="report" style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="fileicon">📄</div><div class="report-main"><b>${r[0]}</b><div class="muted">${r[1]} • ${r[2]}</div></div><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button></div>`).join('')}
+async function renderDoctorReports() {
+  const box = document.getElementById("doctorReports");
+
+  if (!box) return;
+
+  try {
+    const response = await fetch(
+      API_BASE + "/api/reports?patientId=P001"
+    );
+
+    const reports = await response.json();
+
+    if (!response.ok) {
+      throw new Error("Unable to load medical reports");
+    }
+
+    if (!reports.length) {
+      box.innerHTML = `
+        <div class="alert">
+          No uploaded medical reports found for this patient.
+        </div>
+      `;
+      return;
+    }
+
+    box.innerHTML = reports.map(report => `
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div>
+            <b>📄 ${escapeHtml(report.originalName)}</b>
+            <div class="muted" style="margin-top:5px">
+              Patient: ${escapeHtml(report.patientName)}
+            </div>
+            <div class="muted">
+              Uploaded: ${new Date(report.uploadedAt).toLocaleDateString("en-GB")}
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <a
+              class="btn btn-outline"
+              href="${report.url}"
+              target="_blank"
+            >
+              View
+            </a>
+
+            <a
+              class="btn btn-outline"
+              href="${report.url}"
+              download="${escapeHtml(report.originalName)}"
+            >
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error("Doctor reports error:", error);
+
+    box.innerHTML = `
+      <div class="alert">
+        Unable to load patient medical reports.
+      </div>
+    `;
+  }
+}
 function openDecision(type){if(type==='online')openModal(`<h2>Continue Online Care</h2><p class="muted">Record the doctor's guidance for the patient.</p><div class="field"><label>Doctor recommendations</label><textarea placeholder="Enter general guidance, recommended tests and instructions…"></textarea></div><div class="field" style="margin-top:12px"><label>Follow-up date</label><input type="date" value="2026-09-15"></div><button class="btn btn-success" style="margin-top:15px" onclick="closeModal();toast('Online-care recommendation saved')">Save Recommendation</button>`);else openModal(`<h2 style="color:#b91c1c">Physical Consultation Required</h2><p class="muted">The doctor recommends an in-person visit.</p><div class="field"><label>Reason for referral</label><textarea placeholder="Enter clinical reason for physical assessment…"></textarea></div><div class="field" style="margin-top:12px"><label>Recommended healthcare center</label><select><option>RuralCare Health Center</option><option>District Hospital</option><option>Community Health Centre</option></select></div><div class="field" style="margin-top:12px"><label>Priority</label><select><option>Routine</option><option>Priority</option><option>Urgent</option></select></div><button class="btn btn-danger" style="margin-top:15px" onclick="closeModal();toast('Physical referral recorded')">Save Referral</button>`)}
 async function confirmAppointment() {
   const doctor = document.getElementById("appointmentDoctor").value;
