@@ -386,6 +386,8 @@ function renderAppointment() {
 }
 const API_BASE = "https://ruralcare-connect-54wq.onrender.com";
   let videoSocket = null;
+  let chatSocket = null;
+const CHAT_ROOM_ID = "RURALCARE-CHAT-RC-024";
   let peerConnection = null;
 let currentRoomId = null;
 let localStream = null;
@@ -477,7 +479,52 @@ if (status) {
       }
       return;
     }
+function initChatSocket() {
+  if (chatSocket) return;
 
+  chatSocket = io(API_BASE);
+
+  chatSocket.on("connect", () => {
+    console.log("Chat connected:", chatSocket.id);
+    chatSocket.emit("join-chat-room", CHAT_ROOM_ID);
+  });
+
+  chatSocket.on("connect_error", (error) => {
+    console.error("Chat connection error:", error);
+
+    const status = document.getElementById("chatStatus");
+    if (status) {
+      status.textContent = "Chat connection failed";
+    }
+  });
+
+  chatSocket.on("chat-message", (data) => {
+    const box = document.getElementById("messages");
+
+    if (!box || !data || !data.message) return;
+
+    const messageClass =
+      data.senderRole === state.role ? "me" : "doc";
+
+    const messageTime = data.timestamp
+      ? new Date(data.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        })
+      : "";
+
+    box.innerHTML += `
+      <div class="msg ${messageClass}">
+        ${escapeHtml(data.message)}
+        <small style="display:block;opacity:.6;margin-top:4px">
+          ${escapeHtml(data.senderName || "")} ${messageTime}
+        </small>
+      </div>
+    `;
+
+    box.scrollTop = box.scrollHeight;
+  });
+}
     createPeerConnection();
 
     const offer = await peerConnection.createOffer();
@@ -617,7 +664,30 @@ async function getToken() {
 function renderReports(){const rows=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging'],['Prescription','20 Aug 2026','Prescription'],['Scan Report','02 Jul 2026','Imaging'],['CBC Report','12 Jun 2026','Laboratory']];document.getElementById('reportRows').innerHTML=rows.map((r,i)=>`<tr><td><b>📄 ${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge done">Available</span></td><td><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button> <button class="btn btn-outline" onclick="toast('Download prepared (prototype)')">Download</button></td></tr>`).join('')}
 function uploadReport(input){if(input.files.length){toast(input.files[0].name+' uploaded to your report list (prototype)');input.value=''}}
 function viewReport(name,date){openModal(`<h2>${name}</h2><p class="muted">${date} • Sample report preview</p><div class="card" style="background:#f8fbfb"><p><b>Patient:</b> Ananya Kumar</p><p><b>Report values:</b> Sample data for hackathon demonstration only.</p><p>This prototype does not provide diagnosis or interpret medical findings automatically.</p></div><button class="btn btn-primary" onclick="closeModal()">Close</button>`)}
-function sendMessage(){const input=document.getElementById('chatInput');if(!input.value.trim())return;const box=document.getElementById('messages');box.innerHTML+=`<div class="msg me">${escapeHtml(input.value)}</div>`;input.value='';setTimeout(()=>{box.innerHTML+=`<div class="msg doc">Thank you. I have received your message. I will review the available reports and provide guidance during the consultation.</div>`;box.scrollTop=box.scrollHeight},500);box.scrollTop=box.scrollHeight}
+async function sendMessage() {
+  const input = document.getElementById("chatInput");
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  try {
+    if (!chatSocket) {
+      initChatSocket();
+    }
+
+    chatSocket.emit("chat-message", {
+      roomId: "RURALCARE-CHAT-RC-024",
+      message: message,
+      senderRole: state.role,
+      senderName: state.role === "patient" ? "Ananya" : "Dr. Priya Sharma"
+    });
+
+    input.value = "";
+  } catch (error) {
+    console.error("Chat error:", error);
+    toast("Unable to send message");
+  }
+}
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 async function renderDoctorQueue() {
   try {
