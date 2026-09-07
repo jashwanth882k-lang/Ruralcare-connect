@@ -271,20 +271,23 @@ function joinVideoCall() {
           <p style="color:#aaa">Waiting to connect...</p>
         </div>
 
-        <div style="
-          position:absolute;
-          right:15px;
-          bottom:15px;
-          width:120px;
-          height:90px;
-          background:#374151;
-          border-radius:10px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-        ">
-          👤
-        </div>
+        <video
+         id="localVideo"
+         autoplay
+         muted
+         playsinline
+         style="
+         position:absolute;
+         right:15px;
+         bottom:15px;
+         width:160px;
+         height:120px;
+         object-fit:cover;
+         background:#374151;
+         border-radius:10px;
+         border:2px solid white;
+         ">
+      </video>
       </div>
 
       <div style="
@@ -354,6 +357,11 @@ async function toggleCamera() {
         video: true,
         audio: true
       });
+      const localVideo = document.getElementById("localVideo");
+
+if (localVideo) {
+  localVideo.srcObject = localStream;
+}
 
       cameraEnabled = true;
 
