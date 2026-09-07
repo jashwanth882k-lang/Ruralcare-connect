@@ -490,23 +490,36 @@ if (connectStatus) {
   connectStatus.textContent = "Connecting to doctor...";
 }
     });
-   videoSocket.on("offer", async ({ offer }) => {
-    if (!localStream) return;
+  videoSocket.on("offer", async ({ offer }) => {
+  if (!localStream) {
+    console.log("Waiting for local camera before accepting offer");
+    return;
+  }
 
-    createPeerConnection();
+  createPeerConnection();
 
-    await peerConnection.setRemoteDescription(
-      new RTCSessionDescription(offer)
-    );
+  await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(offer)
+  );
 
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
+  for (const candidate of pendingIceCandidates) {
+    try {
+      await peerConnection.addIceCandidate(candidate);
+    } catch (error) {
+      console.error("Pending ICE candidate error:", error);
+    }
+  }
 
-    videoSocket.emit("answer", {
-      roomId: currentRoomId,
-      answer
-    });
-  }); 
+  pendingIceCandidates = [];
+
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  videoSocket.emit("answer", {
+    roomId: currentRoomId,
+    answer
+  });
+});
   videoSocket.on("answer", async ({ answer }) => {
   if (!peerConnection) return;
 
@@ -521,12 +534,17 @@ if (connectStatus) {
   }
 });
   videoSocket.on("ice-candidate", async ({ candidate }) => {
-  if (!peerConnection || !candidate) return;
+  if (!candidate) return;
+
+  const iceCandidate = new RTCIceCandidate(candidate);
+
+  if (!peerConnection || !peerConnection.remoteDescription) {
+    pendingIceCandidates.push(iceCandidate);
+    return;
+  }
 
   try {
-    await peerConnection.addIceCandidate(
-      new RTCIceCandidate(candidate)
-    );
+    await peerConnection.addIceCandidate(iceCandidate);
   } catch (error) {
     console.error("ICE candidate error:", error);
   }
