@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import multer from "multer";
+import path from "path";
 import http from "http";
 import { Server } from "socket.io";
 const app = express();
@@ -15,8 +16,17 @@ const io = new Server(httpServer, {
 
 app.use(cors());
 app.use(express.json());
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname);
+    const filename = Date.now() + "-" + Math.round(Math.random() * 1e9) + extension;
+    cb(null, filename);
+  }
+});
+
 const upload = multer({
-  dest: "uploads/",
+  storage: storage,
   limits: {
     fileSize: 10 * 1024 * 1024
   }
