@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import multer from "multer";
 import http from "http";
 import { Server } from "socket.io";
 const app = express();
@@ -14,11 +15,42 @@ const io = new Server(httpServer, {
 
 app.use(cors());
 app.use(express.json());
+const upload = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  }
+});
+
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.json({
     service: "RuralCare Connect API",
     status: "running"
+  });
+});
+app.post("/api/reports/upload", upload.single("report"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: "No medical report file uploaded"
+    });
+  }
+
+  const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+  res.status(201).json({
+    success: true,
+    message: "Medical report uploaded successfully",
+    report: {
+      originalName: req.file.originalname,
+      fileName: req.file.filename,
+      fileType: req.file.mimetype,
+      fileSize: req.file.size,
+      url: fileUrl,
+      uploadedAt: new Date().toISOString()
+    }
   });
 });
 
