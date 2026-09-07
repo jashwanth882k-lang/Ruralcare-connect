@@ -254,8 +254,9 @@ function setLoginRole(role,el){state.role=role;document.querySelectorAll('.role-
 function login(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');buildNav();go(navs[state.role][0][0]);toast('Signed in as '+state.role)}
 function logout(){document.getElementById('app').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden')}
 function buildNav(){const nav=document.getElementById('nav');nav.innerHTML=navs[state.role].map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}">${n[1]} &nbsp; ${n[2]}</button>`).join('');document.getElementById('bottomnav').innerHTML=navs[state.role].slice(0,5).map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}"><b>${n[1]}</b>${n[2]}</button>`).join('')}
-function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(page);if(el)el.classList.add('active');state.page=page;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='reports')renderReports();if(page==='appointments')renderAppointment();if(page==='doctorHome')renderDoctorQueue();if(page==='doctorPatient')renderDoctorReports();if(page==='adminHome')renderAdminSummary();window.scrollTo({top:0,behavior:'smooth'})}
-  function toast(message) {
+function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(page);if(el)el.classList.add('active');if(page==="consultation")initChatSocket();state.page=page;;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='reports')renderReports();if(page==='appointments')renderAppointment();if(page==='doctorHome')renderDoctorQueue();if(page==='doctorPatient')renderDoctorReports();if(page==='adminHome')renderAdminSummary();window.scrollTo({top:0,behavior:'smooth'})}
+ 
+function toast(message) {
   const el = document.getElementById("toast");
   if (!el) return;
 
