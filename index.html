@@ -400,6 +400,52 @@ const rtcConfig = {
     { urls: "stun:stun.l.google.com:19302" }
   ]
 };
+ function initChatSocket() {
+  if (chatSocket) return;
+
+  chatSocket = io(API_BASE);
+
+  chatSocket.on("connect", () => {
+    console.log("Chat connected:", chatSocket.id);
+    chatSocket.emit("join-chat-room", CHAT_ROOM_ID);
+  });
+
+  chatSocket.on("connect_error", (error) => {
+    console.error("Chat connection error:", error);
+
+    const status = document.getElementById("chatStatus");
+    if (status) {
+      status.textContent = "Chat connection failed";
+    }
+  });
+
+  chatSocket.on("chat-message", (data) => {
+    const box = document.getElementById("messages");
+
+    if (!box || !data || !data.message) return;
+
+    const messageClass =
+      data.senderRole === state.role ? "me" : "doc";
+
+    const messageTime = data.timestamp
+      ? new Date(data.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        })
+      : "";
+
+    box.innerHTML += `
+      <div class="msg ${messageClass}">
+        ${escapeHtml(data.message)}
+        <small style="display:block;opacity:.6;margin-top:4px">
+          ${escapeHtml(data.senderName || "")} ${messageTime}
+        </small>
+      </div>
+    `;
+
+    box.scrollTop = box.scrollHeight;
+  });
+} 
   function createPeerConnection() {
   peerConnection = new RTCPeerConnection(rtcConfig);
 
@@ -480,52 +526,7 @@ if (status) {
       }
       return;
     }
-function initChatSocket() {
-  if (chatSocket) return;
 
-  chatSocket = io(API_BASE);
-
-  chatSocket.on("connect", () => {
-    console.log("Chat connected:", chatSocket.id);
-    chatSocket.emit("join-chat-room", CHAT_ROOM_ID);
-  });
-
-  chatSocket.on("connect_error", (error) => {
-    console.error("Chat connection error:", error);
-
-    const status = document.getElementById("chatStatus");
-    if (status) {
-      status.textContent = "Chat connection failed";
-    }
-  });
-
-  chatSocket.on("chat-message", (data) => {
-    const box = document.getElementById("messages");
-
-    if (!box || !data || !data.message) return;
-
-    const messageClass =
-      data.senderRole === state.role ? "me" : "doc";
-
-    const messageTime = data.timestamp
-      ? new Date(data.timestamp).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit"
-        })
-      : "";
-
-    box.innerHTML += `
-      <div class="msg ${messageClass}">
-        ${escapeHtml(data.message)}
-        <small style="display:block;opacity:.6;margin-top:4px">
-          ${escapeHtml(data.senderName || "")} ${messageTime}
-        </small>
-      </div>
-    `;
-
-    box.scrollTop = box.scrollHeight;
-  });
-}
     createPeerConnection();
 
     const offer = await peerConnection.createOffer();
