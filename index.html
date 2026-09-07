@@ -214,6 +214,10 @@ function initVideoSocket() {
     }
   });
     videoSocket.on("participant-joined", async () => {
+      const status = document.getElementById("videoCallStatus");
+if (status) {
+  status.textContent = "Another participant joined — connecting video...";
+}
     if (!localStream) {
       const status = document.getElementById("videoCallStatus");
       if (status) {
@@ -399,6 +403,14 @@ function openDecision(type){if(type==='online')openModal(`<h2>Continue Online Ca
 function joinVideoCall() {
   const videoRoomId = "RURALCARE-RC-024";
   currentRoomId = videoRoomId;
+  const participantName = document.getElementById("remoteParticipantName");
+
+if (participantName) {
+  participantName.textContent =
+    state.role === "patient"
+      ? "👨‍⚕️ Doctor"
+      : "👤 Patient";
+}
 
 initVideoSocket();
 
@@ -437,6 +449,7 @@ if (videoSocket) {
           <h3>Dr. Priya Sharma</h3>
           <p style="color:#aaa">Waiting to connect...</p>
         </div>
+        <div id="remoteParticipantName" style="font-weight:700;margin-bottom:6px">👨‍⚕️ Doctor</div>
         <video
         id="remoteVideo"
         autoplay
