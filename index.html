@@ -372,6 +372,7 @@ const connectStatus = document.getElementById("videoCallStatus");
 if (connectStatus) {
   connectStatus.textContent = "Connecting to doctor...";
 }
+    });
    videoSocket.on("offer", async ({ offer }) => {
     if (!localStream) return;
 
