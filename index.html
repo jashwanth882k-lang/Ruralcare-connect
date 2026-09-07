@@ -387,6 +387,7 @@ const API_BASE = "https://ruralcare-connect-54wq.onrender.com";
 let currentRoomId = null;
 let localStream = null;
 let remoteStream = null;
+  let pendingIceCandidates = [];
 
 const rtcConfig = {
   iceServers: [
