@@ -672,6 +672,8 @@ async function uploadReport(input) {
   try {
     const formData = new FormData();
     formData.append("report", file);
+    formData.append("patientId", "P001");
+formData.append("patientName", "Ananya");
 
     toast("⏳ Uploading medical report...");
 
