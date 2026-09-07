@@ -664,7 +664,49 @@ async function getToken() {
   }
   }
 function renderReports(){const rows=[['Blood Test','05 Sep 2026','Laboratory'],['Blood Test','05 Jun 2026','Laboratory'],['X-Ray','20 Aug 2026','Imaging'],['Prescription','20 Aug 2026','Prescription'],['Scan Report','02 Jul 2026','Imaging'],['CBC Report','12 Jun 2026','Laboratory']];document.getElementById('reportRows').innerHTML=rows.map((r,i)=>`<tr><td><b>📄 ${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="badge done">Available</span></td><td><button class="btn btn-outline" onclick="viewReport('${r[0]}','${r[1]}')">View</button> <button class="btn btn-outline" onclick="toast('Download prepared (prototype)')">Download</button></td></tr>`).join('')}
-function uploadReport(input){if(input.files.length){toast(input.files[0].name+' uploaded to your report list (prototype)');input.value=''}}
+function uploadReport(input) {
+  if (!input.files.length) return;
+
+  const file = input.files[0];
+  const rows = document.getElementById("reportRows");
+
+  if (!rows) return;
+
+  const today = new Date().toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+
+  const fileName = file.name;
+  const fileType = file.type.includes("image")
+    ? "Imaging"
+    : file.type === "application/pdf"
+      ? "Laboratory"
+      : "Medical Report";
+
+  rows.insertAdjacentHTML("afterbegin", `
+    <tr>
+      <td><b>📄 ${escapeHtml(fileName)}</b></td>
+      <td>${today}</td>
+      <td>${fileType}</td>
+      <td><span class="badge done">Uploaded</span></td>
+      <td>
+        <button class="btn btn-outline"
+          onclick="toast('Report preview opened (prototype)')">
+          View
+        </button>
+        <button class="btn btn-outline"
+          onclick="toast('Download prepared (prototype)')">
+          Download
+        </button>
+      </td>
+    </tr>
+  `);
+
+  input.value = "";
+  toast("✅ " + fileName + " added to your medical reports");
+}
 function viewReport(name,date){openModal(`<h2>${name}</h2><p class="muted">${date} • Sample report preview</p><div class="card" style="background:#f8fbfb"><p><b>Patient:</b> Ananya Kumar</p><p><b>Report values:</b> Sample data for hackathon demonstration only.</p><p>This prototype does not provide diagnosis or interpret medical findings automatically.</p></div><button class="btn btn-primary" onclick="closeModal()">Close</button>`)}
 async function sendMessage() {
   const input = document.getElementById("chatInput");
