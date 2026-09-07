@@ -316,21 +316,87 @@ function joinVideoCall() {
   `);
 }
 
+let microphoneEnabled = true;
+
 function toggleMicrophone() {
   const status = document.getElementById("videoCallStatus");
-  if (status) {
-    status.textContent = "Microphone control ready";
+
+  if (!localStream) {
+    if (status) {
+      status.textContent = "Please turn on the camera first";
+    }
+    return;
+  }
+
+  const audioTrack = localStream.getAudioTracks()[0];
+
+  if (audioTrack) {
+    microphoneEnabled = !microphoneEnabled;
+    audioTrack.enabled = microphoneEnabled;
+
+    if (status) {
+      status.textContent = microphoneEnabled
+        ? "Microphone turned on"
+        : "Microphone turned off";
+    }
   }
 }
 
-function toggleCamera() {
+let localStream = null;
+let cameraEnabled = false;
+
+async function toggleCamera() {
   const status = document.getElementById("videoCallStatus");
-  if (status) {
-    status.textContent = "Camera control ready";
+
+  try {
+    if (!localStream) {
+      localStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+
+      cameraEnabled = true;
+
+      if (status) {
+        status.textContent = "Camera and microphone connected";
+      }
+
+      console.log("Camera and microphone started");
+      return;
+    }
+
+    const videoTrack = localStream.getVideoTracks()[0];
+
+    if (videoTrack) {
+      cameraEnabled = !cameraEnabled;
+      videoTrack.enabled = cameraEnabled;
+
+      if (status) {
+        status.textContent = cameraEnabled
+          ? "Camera turned on"
+          : "Camera turned off";
+      }
+    }
+
+  } catch (error) {
+    console.error("Camera access error:", error);
+
+    if (status) {
+      status.textContent =
+        "Camera/microphone permission was denied or unavailable";
+    }
   }
 }
 
 function endVideoCall() {
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null;
+  }
+
+  cameraEnabled = false;
+  microphoneEnabled = true;
+
   closeModal();
 }
 function openEmergency(){openModal(`<div class="emergency"><h3>🚨 Emergency Help</h3><p><b>If you have a serious or life-threatening emergency, do not wait for an online consultation.</b> Seek immediate physical medical attention.</p><div class="card"><h3>Nearest Care</h3><p><b>RuralCare Health Center</b><br>Rampur Community Road<br>Emergency Desk: 24/7</p><button class="btn btn-danger" onclick="toast('Calling emergency services is represented as a prototype');closeModal()">📞 Call Emergency Services</button></div><p class="muted" style="font-size:12px">Emergency location and phone details shown here are demo data and must be configured with verified local services before deployment.</p></div><button class="btn btn-outline" style="margin-top:14px" onclick="closeModal()">Close</button>`)}
