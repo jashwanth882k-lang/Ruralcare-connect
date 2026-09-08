@@ -694,13 +694,21 @@ if (!patientId || !patientName) {
 
 formData.append("patientId", patientId);
 formData.append("patientName", patientName);
-    const doctorName =
-  state.user?.name ||
-  state.doctorName ||
-  state.appointmentDoctor ||
-  "";
+    const doctorSelect = document.getElementById("appointmentDoctor");
+
+const doctorName =
+    doctorSelect?.value ||
+    state.doctorName ||
+    state.appointmentDoctor ||
+    "Assigned Doctor";
+
+const doctorId =
+    doctorSelect?.selectedOptions?.[0]?.dataset?.doctorId ||
+    state.doctorId ||
+    "";
 
 formData.append("doctorName", doctorName);
+formData.append("doctorId", doctorId);
 
     toast("⏳ Uploading medical report...");
 
