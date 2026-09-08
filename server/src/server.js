@@ -112,7 +112,45 @@ app.get("/api/health", (req, res) => {
   });
 });
 const appointments = [];
+function getTodayStats() {
+  const today = new Date().toISOString().split("T")[0];
 
+  const todayAppointments = appointments.filter(
+    appointment => appointment.date === today
+  );
+
+  const todayTokens = tokens.filter(token => {
+    const tokenDate = token.createdAt
+      ? new Date(token.createdAt).toISOString().split("T")[0]
+      : today;
+
+    return tokenDate === today;
+  });
+
+  return {
+    todayTokens: todayTokens.length,
+    waiting: todayTokens.filter(token => token.status === "waiting").length,
+    completed: todayTokens.filter(token => token.status === "completed").length,
+    appointments: todayAppointments.length
+  };
+}
+app.get("/api/dashboard/stats", (req, res) => {
+  try {
+    const stats = getTodayStats();
+
+    res.json({
+      success: true,
+      ...stats
+    });
+  } catch (error) {
+    console.error("Dashboard stats error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load dashboard statistics"
+    });
+  }
+});
 app.get("/api/appointments", (req, res) => {
   res.json(appointments);
 });
