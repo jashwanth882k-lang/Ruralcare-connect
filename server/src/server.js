@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import http from "http";
 import { Server } from "socket.io";
 const app = express();
@@ -16,11 +17,22 @@ const io = new Server(httpServer, {
 
 app.use(cors());
 app.use(express.json());
+const uploadDir = path.join(process.cwd(), "uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: "uploads/",
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+
   filename: (req, file, cb) => {
     const extension = path.extname(file.originalname);
-    const filename = Date.now() + "-" + Math.round(Math.random() * 1e9) + extension;
+    const filename =
+      Date.now() + "-" + Math.round(Math.random() * 1e9) + extension;
+
     cb(null, filename);
   }
 });
