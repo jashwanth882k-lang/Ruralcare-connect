@@ -672,8 +672,28 @@ async function uploadReport(input) {
   try {
     const formData = new FormData();
     formData.append("report", file);
-    formData.append("patientId", "P001");
-formData.append("patientName", "Ananya");
+    const patientId =
+  state.patientId ||
+  state.user?.patientId ||
+  state.user?.id ||
+  state.id ||
+  "";
+
+const patientName =
+  state.patientName ||
+  state.user?.patientName ||
+  state.user?.name ||
+  state.name ||
+  "";
+
+if (!patientId || !patientName) {
+  toast("Please log in as a patient before uploading a report.");
+  input.value = "";
+  return;
+}
+
+formData.append("patientId", patientId);
+formData.append("patientName", patientName);
 
     toast("⏳ Uploading medical report...");
 
