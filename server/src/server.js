@@ -52,8 +52,8 @@ app.post("/api/reports/upload", upload.single("report"), (req, res) => {
   const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
   const report = {
   id: "REP-" + Date.now(),
-  patientId: req.body.patientId || "P001",
-  patientName: req.body.patientName || "Ananya",
+  patientId: req.body.patientId,
+  patientName: req.body.patientName,
   originalName: req.file.originalname,
   fileName: req.file.filename,
   fileType: req.file.mimetype,
@@ -68,6 +68,8 @@ medicalReports.push(report);
     success: true,
     message: "Medical report uploaded successfully",
     report: {
+      patientId: req.body.patientId,
+      patientName: req.body.patientName,
       originalName: req.file.originalname,
       fileName: req.file.filename,
       fileType: req.file.mimetype,
