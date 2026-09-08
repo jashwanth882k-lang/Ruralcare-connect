@@ -54,6 +54,7 @@ app.post("/api/reports/upload", upload.single("report"), (req, res) => {
   id: "REP-" + Date.now(),
   patientId: req.body.patientId,
   patientName: req.body.patientName,
+  doctorName: req.body.doctorName,
   originalName: req.file.originalname,
   fileName: req.file.filename,
   fileType: req.file.mimetype,
@@ -70,6 +71,7 @@ medicalReports.push(report);
     report: {
       patientId: req.body.patientId,
       patientName: req.body.patientName,
+      doctorName: req.body.doctorName,
       originalName: req.file.originalname,
       fileName: req.file.filename,
       fileType: req.file.mimetype,
