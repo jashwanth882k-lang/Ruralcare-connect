@@ -251,7 +251,23 @@ doctor:[['doctorHome','⌂','Dashboard'],['doctorPatient','♙','Patient Profile
 admin:[['adminHome','⌂','Dashboard']]
 };
 function setLoginRole(role,el){state.role=role;document.querySelectorAll('.role-tabs button').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('loginId').value=role==='patient'?'patient@ruralcare.demo':role==='doctor'?'doctor@ruralcare.demo':'admin@ruralcare.demo'}
-function login(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');buildNav();go(navs[state.role][0][0]);toast('Signed in as '+state.role)}
+function login(){
+  if(state.role==="patient"){
+    state.patientId="PAT-001";
+    state.patientName="Ananya Kumar";
+  }
+
+  if(state.role==="doctor"){
+    state.doctorId="DOC-001";
+    state.doctorName="Dr. Priya Sharma";
+  }
+
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  buildNav();
+  go(navs[state.role][0][0]);
+  toast('Signed in as '+state.role);
+}
 function logout(){document.getElementById('app').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden')}
 function buildNav(){const nav=document.getElementById('nav');nav.innerHTML=navs[state.role].map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}">${n[1]} &nbsp; ${n[2]}</button>`).join('');document.getElementById('bottomnav').innerHTML=navs[state.role].slice(0,5).map(n=>`<button onclick="go('${n[0]}')" data-page="${n[0]}"><b>${n[1]}</b>${n[2]}</button>`).join('')}
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(page);if(el)el.classList.add('active');if(page==="consultation")initChatSocket();state.page=page;;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='reports')renderReports();if(page==='appointments')renderAppointment();if(page==='doctorHome')renderDoctorQueue();if(page==='doctorPatient')renderDoctorReports();if(page==='adminHome')renderAdminSummary();window.scrollTo({top:0,behavior:'smooth'})}
