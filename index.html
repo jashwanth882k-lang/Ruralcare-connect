@@ -694,6 +694,13 @@ if (!patientId || !patientName) {
 
 formData.append("patientId", patientId);
 formData.append("patientName", patientName);
+    const doctorName =
+  state.user?.name ||
+  state.doctorName ||
+  state.appointmentDoctor ||
+  "";
+
+formData.append("doctorName", doctorName);
 
     toast("⏳ Uploading medical report...");
 
