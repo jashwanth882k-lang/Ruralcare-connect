@@ -1367,6 +1367,72 @@ function endVideoCall() {
 }
 function openEmergency(){openModal(`<div class="emergency"><h3>🚨 Emergency Help</h3><p><b>If you have a serious or life-threatening emergency, do not wait for an online consultation.</b> Seek immediate physical medical attention.</p><div class="card"><h3>Nearest Care</h3><p><b>RuralCare Health Center</b><br>Rampur Community Road<br>Emergency Desk: 24/7</p><button class="btn btn-danger" onclick="toast('Calling emergency services is represented as a prototype');closeModal()">📞 Call Emergency Services</button></div><p class="muted" style="font-size:12px">Emergency location and phone details shown here are demo data and must be configured with verified local services before deployment.</p></div><button class="btn btn-outline" style="margin-top:14px" onclick="closeModal()">Close</button>`)}
 function openModal(content){document.getElementById('modalContent').innerHTML=content;document.getElementById('modal').classList.add('show')}
+function openAdminProfile(){
+  openModal(`
+    <h2>👤 Admin Profile</h2>
+    <p class="muted">Update administrator account details</p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Administrator Name</label>
+        <input id="editAdminName" value="Healthcare Administrator">
+      </div>
+
+      <div class="field">
+        <label>Admin ID</label>
+        <input value="ADM-001" disabled>
+      </div>
+
+      <div class="field">
+        <label>Role</label>
+        <input value="System Administrator" disabled>
+      </div>
+
+      <div class="field">
+        <label>Healthcare Center</label>
+        <input id="editAdminCenter" value="RuralCare Community Health Center">
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input id="editAdminEmail" type="email" value="admin@ruralcare.org">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-primary" onclick="saveAdminProfile()">
+        💾 Save Changes
+      </button>
+      <button class="btn btn-outline" onclick="closeModal()">
+        Cancel
+      </button>
+    </div>
+  `);
+}
+function saveAdminProfile(){
+  const name = document.getElementById("editAdminName").value.trim();
+  const center = document.getElementById("editAdminCenter").value.trim();
+  const email = document.getElementById("editAdminEmail").value.trim();
+
+  if (!name || !center || !email) {
+    toast("Please fill in all profile details.");
+    return;
+  }
+
+  document.getElementById("adminProfileName").textContent = name;
+  document.getElementById("adminProfileCenter").textContent = center;
+  document.getElementById("adminProfileEmail").textContent = email;
+
+  localStorage.setItem("adminProfile", JSON.stringify({
+    name: name,
+    center: center,
+    email: email
+  }));
+
+  closeModal();
+  toast("✅ Admin profile updated successfully!");
+}
+
 function closeModal(){document.getElementById('modal').classList.remove('show')}
 function showRegistration(){openModal(`<h2>Create Patient Account</h2><p class="muted">Prototype registration form.</p><div class="form-grid"><div class="field"><label>Full name</label><input placeholder="Full name"></div><div class="field"><label>Age</label><input type="number" placeholder="Age"></div><div class="field"><label>Gender</label><select><option>Select</option><option>Female</option><option>Male</option><option>Other</option></select></div><div class="field"><label>Phone</label><input placeholder="+91"></div><div class="field"><label>Email</label><input placeholder="you@example.com"></div><div class="field"><label>Village / Address</label><input placeholder="Village / address"></div><div class="field full"><label>Emergency contact</label><input placeholder="Name and phone"></div><div class="field full"><label>Basic medical information</label><textarea placeholder="Allergies, medications, relevant history…"></textarea></div></div><button class="btn btn-primary" style="margin-top:16px" onclick="closeModal();toast('Patient profile created (prototype)')">Create Secure Profile</button>`)}
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
